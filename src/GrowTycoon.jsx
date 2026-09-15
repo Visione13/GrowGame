@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Leaf, DollarSign, Droplets, Zap, Lock, TrendingUp, TrendingDown, Sprout, ShoppingCart } from "lucide-react";
+import { Leaf, DollarSign, Package, Zap, Lock, TrendingUp, TrendingDown, Sprout, ShoppingCart } from "lucide-react";
 
 // ---- Game data ----
 const STRAINS = [
@@ -11,7 +11,6 @@ const STRAINS = [
 
 const UPGRADES = [
   { id: "led", name: "LED Lights", desc: "Pflanzen wachsen 20% schneller", cost: 300, icon: Zap },
-  { id: "irrigation", name: "Tropfbewässerung", desc: "Automatisches Gießen, keine Klicks nötig", cost: 500, icon: Droplets },
   { id: "extra-slot", name: "Zusätzlicher Topf", desc: "+1 Anbauplatz", cost: 400, icon: Sprout },
 ];
 
@@ -21,7 +20,7 @@ const STORAGE_KEY = "grow-tycoon-save";
 const LEGACY_CASH_STORAGE_KEY = "grow-tycoon-cash";
 
 function makePlant(strainId) {
-  return { strainId, plantedAt: Date.now(), watered: 0, id: Math.random().toString(36).slice(2) };
+  return { strainId, plantedAt: Date.now(), id: Math.random().toString(36).slice(2) };
 }
 
 function currency(n) {
@@ -44,6 +43,7 @@ export default function GrowTycoon() {
   const [owned, setOwned] = useState(initialSave?.owned ?? []); // upgrade ids
   const [slots, setSlots] = useState(initialSave?.slots ?? Array(SLOT_BASE).fill(null));
   const [priceMul, setPriceMul] = useState(initialSave?.priceMul ?? Object.fromEntries(STRAINS.map(s => [s.id, 1])));
+  const [inventory, setInventory] = useState(initialSave?.inventory ?? {});
   const [log, setLog] = useState([]);
   const [tab, setTab] = useState("grow");
   const [now, setNow] = useState(Date.now());
@@ -51,8 +51,8 @@ export default function GrowTycoon() {
 
   const hasUpgrade = (id) => owned.includes(id);
   const speedMul = hasUpgrade("led") ? 0.8 : 1;
-  const autoWater = hasUpgrade("irrigation");
   const totalSlots = SLOT_BASE + (hasUpgrade("extra-slot") ? 1 : 0);
+  const totalHarvested = Object.values(inventory).reduce((a, b) => a + b, 0);
 
   // tick clock
   useEffect(() => {
@@ -62,8 +62,8 @@ export default function GrowTycoon() {
 
   // persist game state
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ cash, unlocked, owned, slots, priceMul }));
-  }, [cash, unlocked, owned, slots, priceMul]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ cash, unlocked, owned, slots, priceMul, inventory }));
+  }, [cash, unlocked, owned, slots, priceMul, inventory]);
 
   // drift market prices slowly
   useEffect(() => {
@@ -88,7 +88,7 @@ export default function GrowTycoon() {
   const growProgress = (plant) => {
     const strain = STRAINS.find(s => s.id === plant.strainId);
     const elapsed = (now - plant.plantedAt) / 1000;
-    const needed = strain.growSeconds * speedMul * (plant.watered || autoWater ? 0.85 : 1);
+    const needed = strain.growSeconds * speedMul;
     return Math.min(1, elapsed / needed);
   };
 
@@ -100,26 +100,28 @@ export default function GrowTycoon() {
     });
   };
 
-  const waterPlant = (slotIdx) => {
-    setSlots(prev => {
-      const next = [...prev];
-      if (next[slotIdx]) next[slotIdx] = { ...next[slotIdx], watered: 1 };
-      return next;
-    });
-  };
-
   const harvest = (slotIdx) => {
     const plant = slots[slotIdx];
     if (!plant || growProgress(plant) < 1) return;
     const strain = STRAINS.find(s => s.id === plant.strainId);
-    const price = Math.round(strain.basePrice * priceMul[strain.id]);
-    setCash(c => c + price);
-    addLog(`${strain.name} geerntet & verkauft für ${currency(price)}`);
+    setInventory(prev => ({ ...prev, [strain.id]: (prev[strain.id] || 0) + 1 }));
+    addLog(`${strain.name} geerntet`);
     setSlots(prev => {
       const next = [...prev];
       next[slotIdx] = null;
       return next;
     });
+  };
+
+  const sellStrain = (strainId) => {
+    const count = inventory[strainId] || 0;
+    if (count <= 0) return;
+    const strain = STRAINS.find(s => s.id === strainId);
+    const price = Math.round(strain.basePrice * priceMul[strainId]);
+    const total = price * count;
+    setCash(c => c + total);
+    setInventory(prev => ({ ...prev, [strainId]: 0 }));
+    addLog(`${count}x ${strain.name} verkauft für ${currency(total)}`);
   };
 
   const buyUpgrade = (upg) => {
@@ -151,9 +153,17 @@ export default function GrowTycoon() {
           <Leaf size={22} className="text-[#8FBF5A]" />
           <span className="font-display font-bold text-lg tracking-tight">Grow Tycoon</span>
         </div>
-        <div className="flex items-center gap-1.5 bg-[#1A2116] border border-[#2A3324] rounded-full px-4 py-1.5">
-          <DollarSign size={16} className="text-[#C9B94A]" />
-          <span className="font-display font-bold text-[#C9B94A]">{currency(cash)}</span>
+        <div className="flex items-center gap-2">
+          {totalHarvested > 0 && (
+            <div className="flex items-center gap-1.5 bg-[#1A2116] border border-[#2A3324] rounded-full px-4 py-1.5">
+              <Package size={16} className="text-[#8FBF5A]" />
+              <span className="font-display font-bold text-[#8FBF5A]">{totalHarvested}</span>
+            </div>
+          )}
+          <div className="flex items-center gap-1.5 bg-[#1A2116] border border-[#2A3324] rounded-full px-4 py-1.5">
+            <DollarSign size={16} className="text-[#C9B94A]" />
+            <span className="font-display font-bold text-[#C9B94A]">{currency(cash)}</span>
+          </div>
         </div>
       </div>
 
@@ -223,14 +233,6 @@ export default function GrowTycoon() {
                         />
                       </div>
                       <div className="flex gap-2">
-                        {!autoWater && !plant.watered && !ready && (
-                          <button
-                            onClick={() => waterPlant(idx)}
-                            className="flex-1 flex items-center justify-center gap-1.5 bg-[#1A2116] border border-[#2A3324] rounded-lg py-2 text-sm hover:border-[#4A9A8F] transition-colors"
-                          >
-                            <Droplets size={14} /> Gießen
-                          </button>
-                        )}
                         <button
                           onClick={() => harvest(idx)}
                           disabled={!ready}
@@ -259,21 +261,32 @@ export default function GrowTycoon() {
               const price = Math.round(s.basePrice * mul);
               const isUnlocked = unlocked.includes(s.id);
               const up = mul >= 1;
+              const owned_ = inventory[s.id] || 0;
               return (
                 <div key={s.id} className="bg-[#10140F] border border-[#2A3324] rounded-xl px-4 py-3 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
                     <div>
                       <p className="font-medium text-sm">{s.name}</p>
-                      <p className="text-xs text-[#6B7362]">Wachstum {s.growSeconds}s</p>
+                      <p className="text-xs text-[#6B7362]">Wachstum {s.growSeconds}s{isUnlocked && owned_ > 0 ? ` · ${owned_}x im Lager` : ""}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3">
                     {isUnlocked ? (
-                      <div className="flex items-center gap-1.5">
-                        {up ? <TrendingUp size={14} className="text-[#8FBF5A]" /> : <TrendingDown size={14} className="text-[#C97B5C]" />}
-                        <span className="font-display font-bold text-sm">{currency(price)}</span>
-                      </div>
+                      <>
+                        <div className="flex items-center gap-1.5">
+                          {up ? <TrendingUp size={14} className="text-[#8FBF5A]" /> : <TrendingDown size={14} className="text-[#C97B5C]" />}
+                          <span className="font-display font-bold text-sm">{currency(price)}</span>
+                        </div>
+                        {owned_ > 0 && (
+                          <button
+                            onClick={() => sellStrain(s.id)}
+                            className="flex items-center gap-1.5 text-xs bg-[#8FBF5A] text-[#10140F] rounded-full px-3 py-1.5 font-medium hover:bg-[#a3d16c] transition-colors"
+                          >
+                            <ShoppingCart size={12} /> {owned_}x verkaufen für {currency(price * owned_)}
+                          </button>
+                        )}
+                      </>
                     ) : (
                       <button
                         onClick={() => unlockStrain(s)}
