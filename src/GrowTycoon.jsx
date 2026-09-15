@@ -17,6 +17,7 @@ const UPGRADES = [
 
 const SLOT_BASE = 3;
 const TICK_MS = 200;
+const CASH_STORAGE_KEY = "grow-tycoon-cash";
 
 function makePlant(strainId) {
   return { strainId, plantedAt: Date.now(), watered: 0, id: Math.random().toString(36).slice(2) };
@@ -27,7 +28,10 @@ function currency(n) {
 }
 
 export default function GrowTycoon() {
-  const [cash, setCash] = useState(120);
+  const [cash, setCash] = useState(() => {
+    const saved = localStorage.getItem(CASH_STORAGE_KEY);
+    return saved !== null ? Number(saved) : 120;
+  });
   const [unlocked, setUnlocked] = useState(["bag-seed"]);
   const [owned, setOwned] = useState([]); // upgrade ids
   const [slots, setSlots] = useState(Array(SLOT_BASE).fill(null));
@@ -47,6 +51,11 @@ export default function GrowTycoon() {
     const t = setInterval(() => setNow(Date.now()), TICK_MS);
     return () => clearInterval(t);
   }, []);
+
+  // persist cash
+  useEffect(() => {
+    localStorage.setItem(CASH_STORAGE_KEY, String(cash));
+  }, [cash]);
 
   // drift market prices slowly
   useEffect(() => {
