@@ -17,7 +17,8 @@ const UPGRADES = [
 
 const SLOT_BASE = 3;
 const TICK_MS = 200;
-const CASH_STORAGE_KEY = "grow-tycoon-cash";
+const STORAGE_KEY = "grow-tycoon-save";
+const LEGACY_CASH_STORAGE_KEY = "grow-tycoon-cash";
 
 function makePlant(strainId) {
   return { strainId, plantedAt: Date.now(), watered: 0, id: Math.random().toString(36).slice(2) };
@@ -27,15 +28,22 @@ function currency(n) {
   return n.toLocaleString("de-DE", { maximumFractionDigits: 0 }) + " €";
 }
 
+function loadSave() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  const legacyCash = localStorage.getItem(LEGACY_CASH_STORAGE_KEY);
+  return legacyCash !== null ? { cash: Number(legacyCash) } : null;
+}
+
 export default function GrowTycoon() {
-  const [cash, setCash] = useState(() => {
-    const saved = localStorage.getItem(CASH_STORAGE_KEY);
-    return saved !== null ? Number(saved) : 120;
-  });
-  const [unlocked, setUnlocked] = useState(["bag-seed"]);
-  const [owned, setOwned] = useState([]); // upgrade ids
-  const [slots, setSlots] = useState(Array(SLOT_BASE).fill(null));
-  const [priceMul, setPriceMul] = useState(() => Object.fromEntries(STRAINS.map(s => [s.id, 1])));
+  const [initialSave] = useState(loadSave);
+  const [cash, setCash] = useState(initialSave?.cash ?? 120);
+  const [unlocked, setUnlocked] = useState(initialSave?.unlocked ?? ["bag-seed"]);
+  const [owned, setOwned] = useState(initialSave?.owned ?? []); // upgrade ids
+  const [slots, setSlots] = useState(initialSave?.slots ?? Array(SLOT_BASE).fill(null));
+  const [priceMul, setPriceMul] = useState(initialSave?.priceMul ?? Object.fromEntries(STRAINS.map(s => [s.id, 1])));
   const [log, setLog] = useState([]);
   const [tab, setTab] = useState("grow");
   const [now, setNow] = useState(Date.now());
@@ -52,10 +60,10 @@ export default function GrowTycoon() {
     return () => clearInterval(t);
   }, []);
 
-  // persist cash
+  // persist game state
   useEffect(() => {
-    localStorage.setItem(CASH_STORAGE_KEY, String(cash));
-  }, [cash]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ cash, unlocked, owned, slots, priceMul }));
+  }, [cash, unlocked, owned, slots, priceMul]);
 
   // drift market prices slowly
   useEffect(() => {
