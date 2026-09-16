@@ -3,10 +3,10 @@ import { Leaf, DollarSign, Package, Zap, Lock, TrendingUp, TrendingDown, Sprout,
 
 // ---- Game data ----
 const STRAINS = [
-  { id: "bag-seed", name: "Bag Seed", growSeconds: 14, basePrice: 8, unlockCost: 0, color: "#7C9A5C" },
-  { id: "lemon-haze", name: "Lemon Haze", growSeconds: 22, basePrice: 16, unlockCost: 150, color: "#C9B94A" },
-  { id: "purple-kush", name: "Purple Kush", growSeconds: 34, basePrice: 29, unlockCost: 600, color: "#8B5FBF" },
-  { id: "og-diesel", name: "OG Diesel", growSeconds: 50, basePrice: 47, unlockCost: 2200, color: "#4A9A8F" },
+  { id: "bag-seed", name: "Bag Seed", growSeconds: 14, basePrice: 8, unlockCost: 0, color: "#6B8F5A" },
+  { id: "lemon-haze", name: "Lemon Haze", growSeconds: 22, basePrice: 16, unlockCost: 150, color: "#C68A2E" },
+  { id: "purple-kush", name: "Purple Kush", growSeconds: 34, basePrice: 29, unlockCost: 600, color: "#9B7ECB" },
+  { id: "og-diesel", name: "OG Diesel", growSeconds: 50, basePrice: 47, unlockCost: 2200, color: "#5FAA9F" },
 ];
 
 const UPGRADES = [
@@ -140,35 +140,35 @@ export default function GrowTycoon() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#10140F] text-[#E9E9E0] font-sans">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap');
-        .font-display { font-family: 'Space Grotesk', sans-serif; }
-        .font-sans { font-family: 'Inter', sans-serif; }
-      `}</style>
-
+    <div className="min-h-screen w-full bg-paper text-ink font-sans paper-grain">
       {/* header */}
-      <div className="border-b border-[#2A3324] px-5 py-4 flex items-center justify-between sticky top-0 bg-[#10140F]/95 backdrop-blur z-10">
-        <div className="flex items-center gap-2">
-          <Leaf size={22} className="text-[#8FBF5A]" />
-          <span className="font-display font-bold text-lg tracking-tight">Grow Tycoon</span>
-        </div>
-        <div className="flex items-center gap-2">
-          {totalHarvested > 0 && (
-            <div className="flex items-center gap-1.5 bg-[#1A2116] border border-[#2A3324] rounded-full px-4 py-1.5">
-              <Package size={16} className="text-[#8FBF5A]" />
-              <span className="font-display font-bold text-[#8FBF5A]">{totalHarvested}</span>
+      <div className="sticky top-0 z-10 bg-paper/95 backdrop-blur">
+        <div className="h-[3px] bg-forest" />
+        <div className="border-b-2 border-ink/80 px-5 py-4 flex items-center justify-between">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-soft mb-0.5">Kultivierungs-Ledger</p>
+            <div className="flex items-center gap-2">
+              <Leaf size={20} className="text-forest" />
+              <span className="font-display font-extrabold text-xl tracking-tight">Grow Tycoon</span>
             </div>
-          )}
-          <div className="flex items-center gap-1.5 bg-[#1A2116] border border-[#2A3324] rounded-full px-4 py-1.5">
-            <DollarSign size={16} className="text-[#C9B94A]" />
-            <span className="font-display font-bold text-[#C9B94A]">{currency(cash)}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            {totalHarvested > 0 && (
+              <div className="flex items-center gap-1.5 bg-paper-dark border border-line border-l-2 border-l-dashed pl-2.5 pr-3 py-1.5 rounded-sm">
+                <Package size={14} className="text-forest" />
+                <span className="font-mono font-semibold text-sm text-forest">{totalHarvested}</span>
+              </div>
+            )}
+            <div className="flex items-center gap-1.5 bg-paper-dark border border-line border-l-2 border-l-dashed pl-2.5 pr-3 py-1.5 rounded-sm">
+              <DollarSign size={14} className="text-ochre-dark" />
+              <span className="font-mono font-semibold text-sm text-ochre-dark">{currency(cash)}</span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* tabs */}
-      <div className="flex px-5 pt-4 gap-1">
+      <div className="flex px-5 pt-4 gap-1.5">
         {[
           { id: "grow", label: "Anbau" },
           { id: "market", label: "Markt" },
@@ -177,10 +177,10 @@ export default function GrowTycoon() {
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-t-md text-sm font-medium font-display transition-colors border-2 border-b-0 ${
               tab === t.id
-                ? "bg-[#1A2116] text-[#8FBF5A] border-t border-x border-[#2A3324]"
-                : "text-[#8A9280] hover:text-[#E9E9E0]"
+                ? "bg-paper-dark text-forest border-ink/80"
+                : "bg-transparent text-ink-soft border-transparent hover:text-ink"
             }`}
           >
             {t.label}
@@ -188,7 +188,7 @@ export default function GrowTycoon() {
         ))}
       </div>
 
-      <div className="bg-[#1A2116] border-t border-[#2A3324] px-5 py-6 min-h-[60vh]">
+      <div className="bg-paper-dark border-y-2 border-ink/80 px-5 py-6 min-h-[60vh]">
         {tab === "grow" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {slots.map((plant, idx) => {
@@ -196,19 +196,24 @@ export default function GrowTycoon() {
               const progress = plant ? growProgress(plant) : 0;
               const ready = plant && progress >= 1;
               return (
-                <div key={idx} className="bg-[#10140F] border border-[#2A3324] rounded-2xl p-4 flex flex-col gap-3">
+                <div key={idx} className="relative cutline bg-paper p-4 flex flex-col gap-3 settle-in">
+                  {ready && (
+                    <div className="stamp absolute -top-3 -right-3 z-10 -rotate-6 bg-paper border-2 border-rust text-rust font-mono text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-sm shadow-sm">
+                      Erntebereit
+                    </div>
+                  )}
                   <div className="flex items-center justify-between">
-                    <span className="text-xs uppercase tracking-wide text-[#6B7362]">Topf {idx + 1}</span>
-                    {strain && <span className="text-xs font-medium" style={{ color: strain.color }}>{strain.name}</span>}
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-ink-soft">Packet N° {String(idx + 1).padStart(2, "0")}</span>
+                    {strain && <span className="font-display text-xs font-semibold" style={{ color: strain.color }}>{strain.name}</span>}
                   </div>
 
                   {!plant ? (
                     <div className="flex-1 flex flex-col justify-center gap-2 py-4">
-                      <p className="text-sm text-[#6B7362] mb-1">Leerer Topf</p>
+                      <p className="text-sm text-ink-soft mb-1">Leerer Topf</p>
                       <select
                         onChange={(e) => e.target.value && plantSeed(idx, e.target.value)}
                         defaultValue=""
-                        className="bg-[#1A2116] border border-[#2A3324] rounded-lg px-3 py-2 text-sm"
+                        className="bg-paper border border-dashed border-line rounded-sm px-3 py-2 text-sm text-ink"
                       >
                         <option value="" disabled>Sorte pflanzen...</option>
                         {unlocked.map(id => {
@@ -226,20 +231,25 @@ export default function GrowTycoon() {
                           className="transition-all duration-200"
                         />
                       </div>
-                      <div className="w-full h-2 bg-[#2A3324] rounded-full overflow-hidden">
+                      <div className="relative w-full h-2 bg-line/60 rounded-sm overflow-hidden">
                         <div
-                          className="h-full rounded-full transition-all duration-200"
+                          className="h-full transition-all duration-200"
                           style={{ width: `${progress * 100}%`, backgroundColor: strain.color }}
                         />
+                        <div className="absolute inset-0 flex justify-between px-[24%] pointer-events-none">
+                          <span className="w-px h-full bg-paper-dark/70" />
+                          <span className="w-px h-full bg-paper-dark/70" />
+                          <span className="w-px h-full bg-paper-dark/70" />
+                        </div>
                       </div>
                       <div className="flex gap-2">
                         <button
                           onClick={() => harvest(idx)}
                           disabled={!ready}
-                          className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
+                          className={`flex-1 rounded-sm py-2 text-sm font-medium font-display transition-colors ${
                             ready
-                              ? "bg-[#8FBF5A] text-[#10140F] hover:bg-[#a3d16c]"
-                              : "bg-[#2A3324] text-[#6B7362] cursor-not-allowed"
+                              ? "bg-forest text-paper hover:bg-forest-dark"
+                              : "bg-line/50 text-ink-soft cursor-not-allowed"
                           }`}
                         >
                           {ready ? "Ernten" : "Wächst..."}
@@ -255,7 +265,11 @@ export default function GrowTycoon() {
 
         {tab === "market" && (
           <div className="flex flex-col gap-3">
-            <p className="text-sm text-[#8A9280] mb-1">Preise schwanken laufend — verkaufe, wenn der Kurs hoch steht.</p>
+            <p className="text-sm text-ink-soft mb-1">Preise schwanken laufend — verkaufe, wenn der Kurs hoch steht.</p>
+            <div className="flex items-center px-4 font-mono text-[10px] uppercase tracking-widest text-ink-soft">
+              <span className="flex-1">Sorte</span>
+              <span>Kurs &amp; Bestand</span>
+            </div>
             {STRAINS.map(s => {
               const mul = priceMul[s.id];
               const price = Math.round(s.basePrice * mul);
@@ -263,25 +277,25 @@ export default function GrowTycoon() {
               const up = mul >= 1;
               const owned_ = inventory[s.id] || 0;
               return (
-                <div key={s.id} className="bg-[#10140F] border border-[#2A3324] rounded-xl px-4 py-3 flex items-center justify-between">
+                <div key={s.id} className="bg-paper border border-line rounded-sm px-4 py-3 flex items-center justify-between settle-in">
                   <div className="flex items-center gap-3">
-                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
+                    <div className="w-2.5 h-2.5 rounded-full border border-ink/20" style={{ backgroundColor: s.color }} />
                     <div>
-                      <p className="font-medium text-sm">{s.name}</p>
-                      <p className="text-xs text-[#6B7362]">Wachstum {s.growSeconds}s{isUnlocked && owned_ > 0 ? ` · ${owned_}x im Lager` : ""}</p>
+                      <p className="font-display font-semibold text-sm">{s.name}</p>
+                      <p className="text-xs text-ink-soft">Wachstum {s.growSeconds}s{isUnlocked && owned_ > 0 ? ` · ${owned_}x im Lager` : ""}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     {isUnlocked ? (
                       <>
                         <div className="flex items-center gap-1.5">
-                          {up ? <TrendingUp size={14} className="text-[#8FBF5A]" /> : <TrendingDown size={14} className="text-[#C97B5C]" />}
-                          <span className="font-display font-bold text-sm">{currency(price)}</span>
+                          {up ? <TrendingUp size={14} className="text-forest" /> : <TrendingDown size={14} className="text-rust" />}
+                          <span className="font-mono font-semibold text-sm">{currency(price)}</span>
                         </div>
                         {owned_ > 0 && (
                           <button
                             onClick={() => sellStrain(s.id)}
-                            className="flex items-center gap-1.5 text-xs bg-[#8FBF5A] text-[#10140F] rounded-full px-3 py-1.5 font-medium hover:bg-[#a3d16c] transition-colors"
+                            className="flex items-center gap-1.5 text-xs bg-ochre text-ink rounded-sm px-3 py-1.5 font-medium hover:bg-ochre-dark hover:text-paper transition-colors"
                           >
                             <ShoppingCart size={12} /> {owned_}x verkaufen für {currency(price * owned_)}
                           </button>
@@ -291,7 +305,7 @@ export default function GrowTycoon() {
                       <button
                         onClick={() => unlockStrain(s)}
                         disabled={cash < s.unlockCost}
-                        className="flex items-center gap-1.5 text-xs bg-[#1A2116] border border-[#2A3324] rounded-full px-3 py-1.5 disabled:opacity-40 hover:border-[#8FBF5A] transition-colors"
+                        className="flex items-center gap-1.5 text-xs bg-paper-dark border border-dashed border-rust/60 text-rust rounded-sm px-3 py-1.5 disabled:opacity-40 hover:border-rust transition-colors"
                       >
                         <Lock size={12} /> Freischalten für {currency(s.unlockCost)}
                       </button>
@@ -309,23 +323,23 @@ export default function GrowTycoon() {
               const Icon = u.icon;
               const owned_ = hasUpgrade(u.id);
               return (
-                <div key={u.id} className="bg-[#10140F] border border-[#2A3324] rounded-xl p-4 flex flex-col gap-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-lg bg-[#1A2116] flex items-center justify-center">
-                      <Icon size={16} className="text-[#8FBF5A]" />
+                <div key={u.id} className="cutline bg-paper p-4 flex flex-col gap-3 settle-in">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-full border-2 border-forest flex items-center justify-center shrink-0">
+                      <Icon size={15} className="text-forest" />
                     </div>
-                    <span className="font-medium text-sm">{u.name}</span>
+                    <span className="font-display font-semibold text-sm">{u.name}</span>
                   </div>
-                  <p className="text-xs text-[#8A9280] flex-1">{u.desc}</p>
+                  <p className="text-xs text-ink-soft flex-1">{u.desc}</p>
                   <button
                     onClick={() => buyUpgrade(u)}
                     disabled={owned_ || cash < u.cost}
-                    className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-medium transition-colors ${
+                    className={`flex items-center justify-center gap-1.5 rounded-sm py-2 text-sm font-medium font-display transition-colors ${
                       owned_
-                        ? "bg-[#2A3324] text-[#8FBF5A] cursor-default"
+                        ? "bg-transparent border-2 border-forest text-forest cursor-default"
                         : cash < u.cost
-                        ? "bg-[#2A3324] text-[#6B7362] cursor-not-allowed"
-                        : "bg-[#8FBF5A] text-[#10140F] hover:bg-[#a3d16c]"
+                        ? "bg-line/50 text-ink-soft cursor-not-allowed"
+                        : "bg-ochre text-ink hover:bg-ochre-dark hover:text-paper"
                     }`}
                   >
                     {owned_ ? "Aktiv" : <><ShoppingCart size={14} /> {currency(u.cost)}</>}
@@ -338,13 +352,18 @@ export default function GrowTycoon() {
       </div>
 
       {/* activity log */}
-      <div className="px-5 py-4">
-        <p className="text-xs uppercase tracking-wide text-[#6B7362] mb-2">Aktivität</p>
-        <div className="flex flex-col gap-1">
-          {log.length === 0 && <p className="text-sm text-[#6B7362]">Noch keine Ereignisse.</p>}
-          {log.map(l => (
-            <p key={l.id} className="text-sm text-[#8A9280]">{l.text}</p>
-          ))}
+      <div className="px-5 pb-6">
+        <div className="max-w-xl mx-auto">
+          <div className="perforated rounded-b-sm" />
+          <div className="bg-paper-dark border-x border-b border-line rounded-b-sm px-4 py-3">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-ink-soft mb-2">Aktivität</p>
+            <div className="flex flex-col gap-1">
+              {log.length === 0 && <p className="font-mono text-xs text-ink-soft">Noch keine Ereignisse.</p>}
+              {log.map(l => (
+                <p key={l.id} className="font-mono text-xs text-ink">» {l.text}</p>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

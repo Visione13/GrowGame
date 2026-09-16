@@ -1,3 +1,68 @@
+@import url("https://fonts.googleapis.com/css2?family=Bitter:wght@500;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* faint paper grain, kept subtle so text stays crisp */
+.paper-grain {
+  background-image: radial-gradient(circle at 1px 1px, rgba(237, 228, 208, 0.05) 1px, transparent 0);
+  background-size: 14px 14px;
+}
+
+/* seed-packet cut line: dashed, not the default rounded card border */
+.cutline {
+  border: 2px dashed var(--tw-cutline-color, #4a4030);
+  border-radius: 6px;
+}
+
+/* torn receipt perforation along the top edge */
+.perforated {
+  background-image: radial-gradient(circle, #1b1611 3.5px, transparent 3.6px);
+  background-size: 14px 14px;
+  background-position: top center;
+  background-repeat: repeat-x;
+  background-color: #26211a;
+  padding-top: 10px;
+}
+
+@keyframes stamp-in {
+  0% {
+    opacity: 0;
+    transform: scale(1.8) rotate(-18deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.92) rotate(-6deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-6deg);
+  }
+}
+
+.stamp {
+  animation: stamp-in 320ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+@keyframes settle-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.settle-in {
+  animation: settle-in 260ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp,
+  .settle-in {
+    animation: none !important;
+  }
+}
